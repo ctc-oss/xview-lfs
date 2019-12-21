@@ -1,0 +1,13 @@
+ConfigArgParse==0.14.0
+cycler==0.10.0
+-e git+https://github.com/ctc-oss/get-lfs.git@ce9fb76912e8bdcbb7ff58789872a1dbd7bc7c8a#egg=get_lfs
+kiwisolver==1.1.0
+matplotlib==2.2.4
+numpy==1.16.4
+Pillow==6.1.0
+pyparsing==2.4.5
+python-dateutil==2.8.1
+pytz==2019.3
+six==1.13.0
+tqdm==4.32.2
+-e git+https://github.com/ctc-oss/xview-utils@ce135d31eb3fbe3f8fc4322d095c71a9ae2d0c4e#egg=xview
