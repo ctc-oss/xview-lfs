@@ -3,3 +3,5 @@
 *.iml
 
 *.pyc
+
+Pipfile.lock
