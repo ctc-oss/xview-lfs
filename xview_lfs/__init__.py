@@ -46,8 +46,8 @@ def load_train_data(iids, ref='master', chipsz=(300, 300)):
         coords, chips, classes = wv.get_labels(json)
         splits[iid] = wv.chip_image(arr, coords, classes, chipsz)
 
-    # id -> image, boxes, classes
-    return splits
+    # wd, {id -> image, boxes, classes}
+    return wd, splits
 
 
 def load_classes():
