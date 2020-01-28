@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), 'requirements.txt')) as f:
     requires = f.read().splitlines()
 
 setup(name='xview_lfs',
-      version='0.0.1',
+      version='0.1.0',
       packages=['xview_lfs'],
       install_requires=requires,
       include_package_data=True
