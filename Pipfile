@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-GitPython = "*"
 get-lfs = {git = "https://github.com/ctc-oss/get-lfs.git",editable = true}
 xview = {git = "https://github.com/ctc-oss/xview-utils",editable = true}
 
