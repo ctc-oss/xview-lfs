@@ -7,7 +7,7 @@ import xview_lfs as data
 import xview.wv_util as wv
 import tempfile
 from . import write_yolo_labels
-
+import lfs
 
 if __name__ == "__main__":
     ldir = tempfile.mkdtemp(prefix='yolo-')
@@ -16,7 +16,8 @@ if __name__ == "__main__":
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
     parser.add_argument("-r", "--ref", type=str, default='data/master', help="LFS data ref")
     parser.add_argument("-i", "--images", type=str, default='', help="List of image ids to include")
-    parser.add_argument("-c", "--classes", type=str, default='', help="List of classes; empty for all")
+    parser.add_argument("-d", "--dictionary", type=str, default='', help="Path to class dictionary; empty for xview")
+    parser.add_argument("-c", "--classes", type=str, default='', help="Class ids from labels to include; empty for all")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
     parser.add_argument("-a", "--all_chips", default=False, action='store_true', help='Include negatives')
     parser.add_argument("-w", "--workspace", default=ldir, help="Working directory")
@@ -26,7 +27,14 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    labels = wv.get_classes()
+    if not args.dictionary:
+        labels = wv.get_classes()
+    elif lfs.is_uri(args.dictionary):
+        labels = wv.get_classes(lfs.get(args.dictionary))
+    elif os.path.exists(args.dictionary):
+        labels = wv.get_classes(args.dictionary)
+    else:
+        raise SystemError(f'invalid dictionary path, {args.dictionary}')
 
     if args.classes:
         splits = map(lambda s: int(s), args.classes.split(','))
