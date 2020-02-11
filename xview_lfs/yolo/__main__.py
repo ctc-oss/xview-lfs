@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
     parser.add_argument("-r", "--ref", type=str, default='master', help="LFS data ref")
-    parser.add_argument("-i", "--images", type=str, help="List of image ids to include")
+    parser.add_argument("-i", "--images", type=str, help="List of image ids to include; empty for all")
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
@@ -46,13 +46,10 @@ if __name__ == "__main__":
     images_list = []
     classes_actual = {}
 
-    images = args.images
-    if not images:
-        with open(os.path.join(os.environ['project_dir'], 'images.txt')) as f:
-            images = ",".join(map(lambda s: s.strip(), f.readlines()))
-
-    images = images.split(',')
-    print('using images: %s' % images)
+    images = []
+    if args.images:
+        images = args.images.split(',')
+        print('using images: %s' % images)
 
     print('------------ loading data --------------')
     res = (args.chip_size, args.chip_size)
