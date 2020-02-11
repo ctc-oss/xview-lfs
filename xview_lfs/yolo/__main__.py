@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
-    parser.add_argument("-r", "--ref", type=str, default='data/master', help="LFS data ref")
+    parser.add_argument("-r", "--ref", type=str, default='master', help="LFS data ref")
     parser.add_argument("-i", "--images", type=str, default='', help="List of image ids to include")
     parser.add_argument("-d", "--dictionary", type=str, default='', help="Path to class dictionary; empty for xview")
     parser.add_argument("-c", "--classes", type=str, default='', help="Class ids from labels to include; empty for all")
