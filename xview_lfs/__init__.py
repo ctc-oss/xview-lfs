@@ -11,7 +11,7 @@ from lfs import checkout
 
 # from tensorflow.python.util.tf_export import keras_export
 # @keras_export('keras.datasets.mnist.load_data')
-def load_train_data(iids, ref='master', chipsz=(300, 300)):
+def load_train_data(iids, url, ref='master', chipsz=(300, 300)):
     """
     Loads an xview tile.
 
@@ -28,7 +28,6 @@ def load_train_data(iids, ref='master', chipsz=(300, 300)):
     for iid in iids:
         include.extend(['%s.tif' % iid, '%s.geojson' % iid])
 
-    url = os.getenv('REPO_URL')
     wd = checkout(url, ref, include, [])
 
     if not iids:
