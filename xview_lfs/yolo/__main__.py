@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     print('------------ loading data --------------')
     res = (args.chip_size, args.chip_size)
-    lfs_wd, d = data.load_train_data(images, ref=args.ref, chipsz=res)
+    lfs_wd, d = data.load_train_data(images, url=args.lfs_url, ref=args.ref, chipsz=res)
     logger.info('lfs working directory: %s' % lfs_wd)
 
     # prepare the working directory
