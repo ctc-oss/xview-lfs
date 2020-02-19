@@ -1,8 +1,8 @@
 ConfigArgParse==0.14.0
 cycler==0.10.0
-get_lfs @ git+https://github.com/ctc-oss/get-lfs.git@a8a09b3f073d171a1a8e4bcde03273cef0af03cd
-gitdb2==2.0.6
-GitPython==3.0.5
+get_lfs @ git+https://github.com/ctc-oss/get-lfs.git@37df9071e9a5752b9887dc58b984e5c42ed4c2d6
+gitdb2==3.0.2
+GitPython==3.0.8
 kiwisolver==1.1.0
 matplotlib==2.2.4
 numpy==1.16.4
@@ -15,3 +15,4 @@ six==1.13.0
 smmap2==2.0.5
 tqdm==4.32.2
 xview @ git+https://github.com/ctc-oss/xview-utils@94a23e94fd3e03fa80ceec009e789d8613ed51df
+xview-lfs==0.1.0
