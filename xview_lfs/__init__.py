@@ -31,7 +31,7 @@ def load_train_data(iids, url, ref='master', chipsz=(300, 300)):
     wd = checkout(url, ref, include, [])
 
     if not iids:
-        iids = map(lambda n: os.path.splitext(os.path.basename(n))[0], glob.glob(os.path.join(wd, "*.tif")))
+        iids = map(lambda n: os.path.splitext(os.path.basename(n))[0], glob.glob(os.path.join(wd, "train/*.tif")))
 
     splits = {}
     for iid in iids:
