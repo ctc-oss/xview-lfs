@@ -19,7 +19,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
-    parser.add_argument("-a", "--all_chips", default=True, action='store_true', help='Include negatives')
+    parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
     parser.add_argument("-w", "--workspace", default=ldir, help="Working directory")
 
     args = parser.parse_args()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         for idx, image in enumerate(im):
             tf_example = write_yolo_labels(image, box[idx], classes_final[idx], labels)
 
-            if tf_example or args.all_chips:
+            if tf_example or not args.prune_empty:
                 tot_box += tf_example.count('\n')
 
                 chipid = str(ind_chips).rjust(6, '0')
