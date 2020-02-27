@@ -9,9 +9,14 @@ import tempfile
 from . import write_yolo_labels
 import lfs
 
-if __name__ == "__main__":
-    ldir = tempfile.mkdtemp(prefix='yolo-')
 
+def make_temp_dir():
+    d = tempfile.mkdtemp(prefix='yolo-')
+    os.chmod(d, 0o755)
+    return d
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
     parser.add_argument("-r", "--ref", type=str, default='master', help="LFS data ref")
@@ -20,9 +25,12 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
     parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
-    parser.add_argument("-w", "--workspace", default=ldir, help="Working directory")
+    parser.add_argument("-w", "--workspace", help="Working directory")
 
     args = parser.parse_args()
+
+    if not args.workspace:
+        args.workspace = make_temp_dir()
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
