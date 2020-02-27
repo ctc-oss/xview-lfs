@@ -48,9 +48,9 @@ if __name__ == "__main__":
     images = []
     if args.images:
         images = args.images.split(',')
-        print('using images: %s' % images)
+        logging.info('using images: %s' % images)
 
-    print('------------ loading data --------------')
+    logging.debug('------------ loading data --------------')
     res = (args.chip_size, args.chip_size)
     lfs_wd, d = data.load_train_data(images, url=args.lfs_url, ref=args.ref, chipsz=res)
     logger.info(f'lfs working directory: {lfs_wd}')
