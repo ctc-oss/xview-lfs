@@ -3,6 +3,7 @@ from tqdm import tqdm
 import logging
 import configargparse as argparse
 import os
+import re
 import xview_lfs as data
 import xview.wv_util as wv
 import tempfile
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--chip_format", type=str, default='png', help="Training chip format (jpg, png, ...)")
     parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
     parser.add_argument("-w", "--workspace", help="Working directory")
-
+    parser.add_argument("--yolo_root_dir", default='/opt/darknet', help="Yolo install dir")
     args = parser.parse_args()
 
     Image.init()
@@ -142,6 +143,58 @@ if __name__ == "__main__":
         logging.debug("wrote %s" % f.name)
 
     logging.info("Generating training_list.txt")
-    with open(os.path.join(args.workspace, 'training_list.txt'), 'w') as f:
+    training_list_path = os.path.join(args.workspace, 'training_list.txt')
+    with open(training_list_path, 'w') as f:
         f.write('\n'.join(images_list))
         logging.debug("wrote %s" % f.name)
+
+    yolo_cfg_src = os.path.join(args.yolo_root_dir, 'cfg', 'yolov3.cfg')
+    if os.path.exists(yolo_cfg_src):
+        logging.info("Darknet installation found, generating yolo configuration")
+
+        logging.info("Generating obj.names")
+        yolo_names_path = os.path.join(args.workspace, 'obj.names')
+        with open(yolo_names_path, 'w') as f:
+            labelstr = "\n".join(final_classes_map)
+            f.write(labelstr)
+            logging.debug("wrote %s" % f.name)
+
+        logging.info("Generating obj.data")
+        class_count = len(final_classes_map)
+        yolo_obj_data_path = os.path.join(args.workspace, 'obj.data')
+        with open(yolo_obj_data_path, 'w') as f:
+            f.write(f'classes={class_count}\n')
+            f.write(f'train={training_list_path}\n')
+            f.write(f'valid={training_list_path}\n')  # todo;; separate val images
+            f.write(f'names={yolo_names_path}\n')
+            f.write(f'backup={os.path.join(args.workspace, "backup")}\n')
+            logging.debug("wrote %s" % f.name)
+
+        max_batches = max(4000, class_count * 2000)
+        yolocfg = {
+            'batch': '64',
+            'subdivisions': '16',
+            'width': f'{args.chip_size}',
+            'height': f'{args.chip_size}',
+            'max_batches': f'{max_batches}',
+            'steps': f'{int(max_batches * .8)},{int(max_batches * .9)}',
+            'filters': f'{(class_count + 5) * 3}',
+            'classes': f'{class_count}'
+        }
+
+        logging.info("Generating yolo-obj.cfg")
+        yolo_cfg_path = os.path.join(args.workspace, 'yolo-obj.cfg')
+        with open(yolo_cfg_src, 'r') as source, open(yolo_cfg_path, 'w') as target:
+            lines = source.readlines()
+            for ln in lines:
+                oln = ln
+                for k, v in yolocfg.items():
+                    if k == 'filters':
+                        oln = re.sub(f'^{k}=255$', f'{k}={v}', oln)
+                    else:
+                        oln = re.sub(f'^{k}( )?=.+$', f'{k}={v}', oln)
+                target.write(oln)
+
+        logging.info(f'command:\t\tdarknet detector train {yolo_obj_data_path} {yolo_cfg_path} darknet53.conv.74')
+
+    print(args.workspace)
