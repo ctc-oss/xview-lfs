@@ -24,10 +24,15 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
+    parser.add_argument("-t", "--chip_format", type=str, default='png', help="Training chip format (jpg, png, ...)")
     parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
     parser.add_argument("-w", "--workspace", help="Working directory")
 
     args = parser.parse_args()
+
+    Image.init()
+    if f'.{args.chip_format}' not in Image.EXTENSION.keys():
+        raise SystemError(f'invalid chip format, {args.chip_format}')
 
     if not args.workspace:
         args.workspace = make_temp_dir()
@@ -88,8 +93,8 @@ if __name__ == "__main__":
                 tot_box += tf_example.count('\n')
 
                 chipid = str(ind_chips).rjust(6, '0')
-                writer = open(os.path.join(lfs_wd, 'labels/%s.txt' % chipid), "w")
-                img_file = os.path.join(lfs_wd, 'images/%s.png' % chipid)
+                writer = open(os.path.join(lfs_wd, f'labels/{chipid}.txt'), "w")
+                img_file = os.path.join(lfs_wd, f'images/{chipid}.{args.chip_format}')
                 Image.fromarray(image).save(img_file)
                 images_list.append(img_file)
 
