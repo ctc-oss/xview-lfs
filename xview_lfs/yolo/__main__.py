@@ -40,20 +40,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    if not args.dictionary:
-        labels = wv.get_classes()
-    elif lfs.is_uri(args.dictionary):
-        labels = wv.get_classes(lfs.get(args.dictionary))
-    elif os.path.exists(args.dictionary):
-        labels = wv.get_classes(args.dictionary)
-    else:
-        raise SystemError(f'invalid dictionary path, {args.dictionary}')
-
-    if args.classes:
-        splits = map(lambda s: int(s), args.classes.split(','))
-        for rem in set(labels.keys()) - set(splits):
-            labels.pop(rem, None)
-
     boxes = {}
     skip_chips = 0
     images_list = []
@@ -67,7 +53,26 @@ if __name__ == "__main__":
     print('------------ loading data --------------')
     res = (args.chip_size, args.chip_size)
     lfs_wd, d = data.load_train_data(images, url=args.lfs_url, ref=args.ref, chipsz=res)
-    logger.info('lfs working directory: %s' % lfs_wd)
+    logger.info(f'lfs working directory: {lfs_wd}')
+
+    class_dict = args.dictionary
+    if not class_dict:
+        labels = wv.get_classes()
+    elif lfs.is_uri(class_dict):
+        labels = wv.get_classes(lfs.get(class_dict))
+    elif os.path.exists(class_dict):
+        labels = wv.get_classes(class_dict)
+    elif not class_dict.startswith('/') and os.path.exists(os.path.join(lfs_wd, class_dict)):
+        labels = wv.get_classes(os.path.join(lfs_wd, class_dict))
+    else:
+        raise SystemError(f'invalid dictionary path, {class_dict}')
+
+    logger.info(f'class dictionary: {class_dict}')
+
+    if args.classes:
+        splits = map(lambda s: int(s), args.classes.split(','))
+        for rem in set(labels.keys()) - set(splits):
+            labels.pop(rem, None)
 
     # prepare the working directory
     images_dir = os.path.join(lfs_wd, 'images')
