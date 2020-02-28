@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--images", type=str, help="List of image ids to include; empty for all")
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
+    parser.add_argument("-k", "--insecure", action='store_true', help="Skip SSL verification; GIT_SSL_NO_VERIFY")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
     parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
     parser.add_argument("-w", "--workspace", help="Working directory")
@@ -31,6 +32,9 @@ if __name__ == "__main__":
     parser.add_argument("--chip_format", type=str, default='jpg', help="Training chip format (jpg, png, ...)")
     parser.add_argument("--yolo_root_dir", default='/opt/darknet', help="Yolo install dir")
     args = parser.parse_args()
+
+    if args.insecure:
+        os.environ['GIT_SSL_NO_VERIFY'] = '1'
 
     Image.init()
     if f'.{args.chip_format}' not in Image.EXTENSION.keys():
