@@ -63,7 +63,11 @@ if __name__ == "__main__":
 
     class_dict = args.dictionary
     if not class_dict:
-        labels = wv.get_classes()
+        default_labels = os.path.join(lfs_wd, 'labels.txt')
+        if os.path.exists(default_labels):
+            labels = wv.get_classes(default_labels)
+        else:
+            labels = wv.get_classes()
     elif lfs.is_uri(class_dict):
         labels = wv.get_classes(lfs.get(class_dict))
     elif os.path.exists(class_dict):
@@ -187,7 +191,7 @@ if __name__ == "__main__":
             for ln in lines:
                 oln = ln
                 for k, v in yolocfg.items():
-                    if k == 'filters':
+                    if k == 'filters':  # todo;; hacked in here for special filters case
                         oln = re.sub(f'^{k}=255$', f'{k}={v}', oln)
                     else:
                         oln = re.sub(f'^{k}( )?=.+$', f'{k}={v}', oln)
