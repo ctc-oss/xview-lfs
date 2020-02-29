@@ -6,15 +6,8 @@ import os
 import re
 import xview_lfs as data
 import xview.wv_util as wv
-import tempfile
-from . import write_yolo_labels
+from . import write_yolo_labels, make_temp_dir
 import lfs
-
-
-def make_temp_dir():
-    d = tempfile.mkdtemp(prefix='yolo-')
-    os.chmod(d, 0o755)
-    return d
 
 
 if __name__ == "__main__":
@@ -42,7 +35,7 @@ if __name__ == "__main__":
 
     # prepare the working directory
     if not args.workspace:
-        args.workspace = make_temp_dir()
+        args.workspace = make_temp_dir('yolo-')
     chip_out_dir = os.path.join(args.workspace, args.chip_dir)
     if not os.path.exists(chip_out_dir):
         os.mkdir(chip_out_dir)

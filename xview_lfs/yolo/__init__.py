@@ -1,3 +1,7 @@
+import os
+import tempfile
+
+
 def write_yolo_labels(img, boxes, class_num, labels):
     sw = img.shape[0]
     sh = img.shape[1]
@@ -28,3 +32,9 @@ def write_yolo_labels(img, boxes, class_num, labels):
             yolo_text.append("{} {} {} {} {}".format(clazz, x, y, w, h))
 
     return '\n'.join(yolo_text)
+
+
+def make_temp_dir(pre):
+    td = tempfile.mkdtemp(prefix=pre)
+    os.chmod(td, 0o755)
+    return td
