@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
     parser.add_argument("-r", "--ref", type=str, default='master', help="LFS data ref")
-    parser.add_argument("-i", "--images", type=str, help="List of image ids to include; empty for all")
+    parser.add_argument("-i", "--images", type=str, action='append', help="List of image ids to include; empty for all")
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-k", "--insecure", action='store_true', help="Skip SSL verification; GIT_SSL_NO_VERIFY")
@@ -50,7 +50,10 @@ if __name__ == "__main__":
 
     images = []
     if args.images:
-        images = args.images.split(',')
+        for img_list in args.images:
+            images.extend(img_list.split(','))
+
+    if images:
         logging.info('using images: %s' % images)
 
     logging.debug('------------ loading data --------------')
