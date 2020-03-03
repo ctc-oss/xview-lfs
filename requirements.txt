@@ -2,8 +2,8 @@ ConfigArgParse==0.14.0
 get_lfs @ git+https://github.com/ctc-oss/get-lfs.git@37df9071e9a5752b9887dc58b984e5c42ed4c2d6
 gitdb2==3.0.2
 GitPython==3.0.8
-numpy==1.16.4
+numpy==1.18.1
 Pillow==6.1.0
 smmap2==2.0.5
 tqdm==4.32.2
-xview @ git+https://github.com/ctc-oss/xview-utils@7521dd56e867e5738aeb4731d98b662bda139fbf
+xview @ git+https://github.com/ctc-oss/xview-utils@f45704c8492627765ef333bb1805914d8917d181
