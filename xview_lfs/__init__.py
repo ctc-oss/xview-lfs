@@ -56,3 +56,21 @@ def load_classes():
             k, v = l.strip().split(':')
             res[int(k)] = v
         return res
+
+
+def fill_in_gaps_and_background(class_map):
+    values = class_map.keys()
+    max_class_id = max(values)
+
+    ret = class_map.copy()
+    if 0 not in values:
+        ret[0] = 'background'
+
+    if len(class_map) != max_class_id + 1:
+        for value in range(1, max_class_id):
+            if value not in values:
+                ret[value] = f'class_{value}'
+            else:
+                ret[value] = class_map[value]
+
+    return ret

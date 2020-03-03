@@ -125,28 +125,21 @@ if __name__ == "__main__":
     final_classes_map = []
     logger.info("Generating xview.pbtxt")
     with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
-        for class_id, count in classes_actual.items():
-            if class_id in labels.keys():
-                name = labels[class_id].lower().replace(' ', '_')
-                display_name = labels[class_id]
-                logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, count))
-                f.write('\n'.join([
-                    'item {',
-                    f'  id: {class_id}',
-                    f'  name: "{name}"',
-                    f'  display_name: "{display_name}"',
-                    '}'])
-                )
+        filled_in_labels = data.fill_in_gaps_and_background(labels)
+        for class_id, class_label in sorted(filled_in_labels.items()):
+            name = class_label.lower().replace(' ', '_')
+            display_name = filled_in_labels[class_id]
+            f.write('\n'.join([
+                'item {',
+                f'  id: {class_id}',
+                f'  name: {name}',
+                f'  display_name: {display_name}',
+                '}'])
+            )
+            if class_id in classes_actual.keys():
+                logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, classes_actual[class_id]))
                 final_classes_map.append(name)
-            elif class_id not in excluded_classes:
-                logger.debug(f'class-id {class_id} was not included in tf label map')
         logger.debug(f"wrote %s" % f.name)
-
-    with open(os.path.join(args.workspace, 'label_string.txt'), 'w') as f:
-        labelstr = ",".join(final_classes_map)
-        logger.info("your label string is: {}".format(labelstr))
-        f.write(labelstr)
-        logger.debug("wrote %s" % f.name)
 
     logger.info("Generating training_list.txt")
     training_list_path = os.path.join(args.workspace, 'training_list.txt')
