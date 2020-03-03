@@ -132,8 +132,8 @@ if __name__ == "__main__":
             f.write('\n'.join([
                 'item {',
                 f'  id: {class_id}',
-                f'  name: {name}',
-                f'  display_name: {display_name}',
+                f'  name: "{name}"',
+                f'  display_name: "{display_name}"',
                 '}'])
             )
             if class_id in classes_actual.keys():
