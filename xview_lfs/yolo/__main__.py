@@ -9,7 +9,6 @@ import xview.wv_util as wv
 from . import write_yolo_labels, make_temp_dir
 import lfs
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
@@ -79,10 +78,11 @@ if __name__ == "__main__":
 
     logger.info(f'class dictionary: {class_dict}')
 
+    excluded_classes = []
     if args.classes:
         splits = map(lambda s: int(s), args.classes.split(','))
         for rem in set(labels.keys()) - set(splits):
-            labels.pop(rem, None)
+            excluded_classes.append(labels.pop(rem, None))
 
     tot_box = 0
     ind_chips = 0
@@ -90,12 +90,15 @@ if __name__ == "__main__":
     for iid in tqdm(d.keys()):
         im, box, classes_final = d[iid]
 
-        for _, v in classes_final.items():
-            for c in v:
+        for _, count in classes_final.items():
+            for c in count:
+                # todo;; cast class-id to int upstream
                 classes_actual[int(c)] = classes_actual.get(c, 0) + 1
 
         for idx, image in enumerate(im):
-            tf_example = write_yolo_labels(image, box[idx], classes_final[idx], labels)
+            # todo;; cast class-id to int upstream
+            int_classes_final = list(map(lambda cid: int(cid), classes_final[idx]))
+            tf_example = write_yolo_labels(image, box[idx], int_classes_final, labels)
 
             if tf_example or not args.prune_empty:
                 tot_box += tf_example.count('\n')
@@ -120,15 +123,22 @@ if __name__ == "__main__":
     final_classes_map = []
     logging.info("Generating xview.pbtxt")
     with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
-        idx = 0
-        for k, v in classes_actual.items():
-            if k in labels:
-                idx += 1
-                name = labels[k]
-                logging.info(' {:>3} {:25}{:>5}'.format(k, name, v))
-                f.write('item {{\n  id: {}\n  name: {!r}\n}}\n'.format(idx, name))
+        for class_id, count in classes_actual.items():
+            if class_id in labels.keys():
+                name = labels[class_id].lower().replace(' ', '_')
+                display_name = labels[class_id]
+                logging.info(' {:>3} {:25}{:>5}'.format(class_id, name, count))
+                f.write('\n'.join([
+                    'item {',
+                    f'  id: {class_id}',
+                    f'  name: "{name}"',
+                    f'  display_name: "{display_name}"',
+                    '}'])
+                )
                 final_classes_map.append(name)
-        logging.debug("wrote %s" % f.name)
+            elif class_id not in excluded_classes:
+                logger.debug(f'class-id {class_id} was not included in tf label map')
+        logging.debug(f"wrote %s" % f.name)
 
     with open(os.path.join(args.workspace, 'label_string.txt'), 'w') as f:
         labelstr = ",".join(final_classes_map)
@@ -182,11 +192,11 @@ if __name__ == "__main__":
             lines = source.readlines()
             for ln in lines:
                 oln = ln
-                for k, v in yolocfg.items():
-                    if k == 'filters':  # todo;; hacked in here for special filters case
-                        oln = re.sub(f'^{k}=255$', f'{k}={v}', oln)
+                for class_id, count in yolocfg.items():
+                    if class_id == 'filters':  # todo;; hacked in here for special filters case
+                        oln = re.sub(f'^{class_id}=255$', f'{class_id}={count}', oln)
                     else:
-                        oln = re.sub(f'^{k}( )?=.+$', f'{k}={v}', oln)
+                        oln = re.sub(f'^{class_id}( )?=.+$', f'{class_id}={count}', oln)
                 target.write(oln)
 
         logging.info(f'command:\t\tdarknet detector train {yolo_obj_data_path} {yolo_cfg_path} darknet53.conv.74')
