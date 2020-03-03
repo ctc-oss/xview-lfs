@@ -145,6 +145,7 @@ if __name__ == "__main__":
     training_list_path = os.path.join(args.workspace, 'training_list.txt')
     with open(training_list_path, 'w') as f:
         f.write('\n'.join(images_list))
+        f.write('\n')
         logger.debug("wrote %s" % f.name)
 
     yolo_cfg_src = os.path.join(args.yolo_root_dir, 'cfg', 'yolov3.cfg')
