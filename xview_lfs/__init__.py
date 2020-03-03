@@ -63,9 +63,6 @@ def fill_in_gaps_and_background(class_map):
     max_class_id = max(values)
 
     ret = class_map.copy()
-    if 0 not in values:
-        ret[0] = 'background'
-
     if len(class_map) != max_class_id + 1:
         for value in range(1, max_class_id):
             if value not in values:
