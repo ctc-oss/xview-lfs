@@ -67,6 +67,8 @@ if __name__ == "__main__":
             labels = wv.get_classes(default_labels)
         else:
             labels = wv.get_classes()
+    elif class_dict == 'xview':
+        labels = wv.get_classes()
     elif lfs.is_uri(class_dict):
         labels = wv.get_classes(lfs.get(class_dict))
     elif os.path.exists(class_dict):
