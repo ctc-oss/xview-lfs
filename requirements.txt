@@ -3,7 +3,7 @@ get_lfs @ git+https://github.com/ctc-oss/get-lfs.git@37df9071e9a5752b9887dc58b98
 gitdb2==3.0.2
 GitPython==3.0.8
 numpy==1.18.1
-Pillow==6.1.0
+Pillow==7.0.0
 smmap2==2.0.5
 tqdm==4.32.2
-xview @ git+https://github.com/ctc-oss/xview-utils@f45704c8492627765ef333bb1805914d8917d181
+xview @ git+https://github.com/ctc-oss/xview-utils@7b778f8f992eacfff55df2e4c9a3875dca93e362
