@@ -130,14 +130,6 @@ if __name__ == "__main__":
                 final_classes_map.append(name)
         logging.debug("wrote %s" % f.name)
 
-    logging.info("Generating rewrite_labels.sh")
-    with open(os.path.join(args.workspace, 'rewrite_labels.sh'), 'w') as f:
-        f.write('''#!/bin/bash\n''')
-        for i, c in enumerate(final_classes_map):
-            f.write('sed -i "s#{}#{}#g" {}/*.txt\n'.format(c, i, chip_out_dir))
-        os.chmod(f.name, 0o755)
-        logging.debug("wrote %s" % f.name)
-
     with open(os.path.join(args.workspace, 'label_string.txt'), 'w') as f:
         labelstr = ",".join(final_classes_map)
         logging.info("your label string is: {}".format(labelstr))
