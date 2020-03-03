@@ -6,4 +6,4 @@ numpy==1.18.1
 Pillow==7.0.0
 smmap2==2.0.5
 tqdm==4.32.2
-xview @ git+https://github.com/ctc-oss/xview-utils@7b778f8f992eacfff55df2e4c9a3875dca93e362
+xview @ git+https://github.com/ctc-oss/xview-utils@387514618330bc8902fac118888e0e5bb39f0532
