@@ -28,8 +28,7 @@ def write_yolo_labels(img, boxes, class_num, labels):
             w = w0 * dw
             h = h0 * dh
 
-            clazz = labels[int(class_num[ind])]
-            yolo_text.append("{} {} {} {} {}".format(clazz, x, y, w, h))
+            yolo_text.append(f"{class_num[ind]} {x} {y} {w} {h}")
 
     return '\n'.join(yolo_text)
 
