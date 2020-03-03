@@ -191,4 +191,5 @@ if __name__ == "__main__":
 
         logging.info(f'command:\t\tdarknet detector train {yolo_obj_data_path} {yolo_cfg_path} darknet53.conv.74')
 
+    logging.info(f'file://{args.workspace}')
     print(args.workspace)
