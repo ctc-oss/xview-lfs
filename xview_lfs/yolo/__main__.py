@@ -40,7 +40,7 @@ if __name__ == "__main__":
         os.mkdir(chip_out_dir)
 
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("yolo")
 
     boxes = {}
     skip_chips = 0
@@ -53,9 +53,9 @@ if __name__ == "__main__":
             images.extend(img_list.split(','))
 
     if images:
-        logging.info('using images: %s' % images)
+        logger.info('using images: %s' % images)
 
-    logging.debug('------------ loading data --------------')
+    logger.debug('------------ loading data --------------')
     res = (args.chip_size, args.chip_size)
     lfs_wd, d = data.load_train_data(images, url=args.lfs_url, ref=args.ref, chipsz=res)
     logger.info(f'lfs working directory: {lfs_wd}')
@@ -118,18 +118,18 @@ if __name__ == "__main__":
             else:
                 skip_chips += 1
 
-    logging.info("Tot Box: %d" % tot_box)
-    logging.info("Chips: %d" % ind_chips)
-    logging.info("Skipped Chips: %d" % skip_chips)
+    logger.info("Tot Box: %d" % tot_box)
+    logger.info("Chips: %d" % ind_chips)
+    logger.info("Skipped Chips: %d" % skip_chips)
 
     final_classes_map = []
-    logging.info("Generating xview.pbtxt")
+    logger.info("Generating xview.pbtxt")
     with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
         for class_id, count in classes_actual.items():
             if class_id in labels.keys():
                 name = labels[class_id].lower().replace(' ', '_')
                 display_name = labels[class_id]
-                logging.info(' {:>3} {:25}{:>5}'.format(class_id, name, count))
+                logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, count))
                 f.write('\n'.join([
                     'item {',
                     f'  id: {class_id}',
@@ -140,32 +140,32 @@ if __name__ == "__main__":
                 final_classes_map.append(name)
             elif class_id not in excluded_classes:
                 logger.debug(f'class-id {class_id} was not included in tf label map')
-        logging.debug(f"wrote %s" % f.name)
+        logger.debug(f"wrote %s" % f.name)
 
     with open(os.path.join(args.workspace, 'label_string.txt'), 'w') as f:
         labelstr = ",".join(final_classes_map)
-        logging.info("your label string is: {}".format(labelstr))
+        logger.info("your label string is: {}".format(labelstr))
         f.write(labelstr)
-        logging.debug("wrote %s" % f.name)
+        logger.debug("wrote %s" % f.name)
 
-    logging.info("Generating training_list.txt")
+    logger.info("Generating training_list.txt")
     training_list_path = os.path.join(args.workspace, 'training_list.txt')
     with open(training_list_path, 'w') as f:
         f.write('\n'.join(images_list))
-        logging.debug("wrote %s" % f.name)
+        logger.debug("wrote %s" % f.name)
 
     yolo_cfg_src = os.path.join(args.yolo_root_dir, 'cfg', 'yolov3.cfg')
     if os.path.exists(yolo_cfg_src):
-        logging.info("Darknet installation found, generating yolo configuration")
+        logger.info("Darknet installation found, generating yolo configuration")
 
-        logging.info("Generating obj.names")
+        logger.info("Generating obj.names")
         yolo_names_path = os.path.join(args.workspace, 'obj.names')
         with open(yolo_names_path, 'w') as f:
             labelstr = "\n".join(final_classes_map)
             f.write(labelstr)
-            logging.debug("wrote %s" % f.name)
+            logger.debug("wrote %s" % f.name)
 
-        logging.info("Generating obj.data")
+        logger.info("Generating obj.data")
         class_count = len(final_classes_map)
         yolo_obj_data_path = os.path.join(args.workspace, 'obj.data')
         with open(yolo_obj_data_path, 'w') as f:
@@ -174,7 +174,7 @@ if __name__ == "__main__":
             f.write(f'valid={training_list_path}\n')  # todo;; separate val images
             f.write(f'names={yolo_names_path}\n')
             f.write(f'backup={os.path.join(args.workspace, "backup")}\n')
-            logging.debug("wrote %s" % f.name)
+            logger.debug("wrote %s" % f.name)
 
         max_batches = max(4000, class_count * 2000)
         yolocfg = {
@@ -188,7 +188,7 @@ if __name__ == "__main__":
             'classes': f'{class_count}'
         }
 
-        logging.info("Generating yolo-obj.cfg")
+        logger.info("Generating yolo-obj.cfg")
         yolo_cfg_path = os.path.join(args.workspace, 'yolo-obj.cfg')
         with open(yolo_cfg_src, 'r') as source, open(yolo_cfg_path, 'w') as target:
             lines = source.readlines()
@@ -201,7 +201,7 @@ if __name__ == "__main__":
                         oln = re.sub(f'^{class_id}( )?=.+$', f'{class_id}={count}', oln)
                 target.write(oln)
 
-        logging.info(f'command:\t\tdarknet detector train {yolo_obj_data_path} {yolo_cfg_path} darknet53.conv.74')
+        logger.info(f'command:\t\tdarknet detector train {yolo_obj_data_path} {yolo_cfg_path} darknet53.conv.74')
 
-    logging.info(f'file://{args.workspace}')
+    logger.info(f'file://{args.workspace}')
     print(args.workspace)
