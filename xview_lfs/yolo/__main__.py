@@ -127,14 +127,12 @@ if __name__ == "__main__":
     with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
         filled_in_labels = data.fill_in_gaps_and_background(labels)
         for class_id, class_label in sorted(filled_in_labels.items()):
-            name = class_label.lower().replace(' ', '_')
-            display_name = filled_in_labels[class_id]
+            name = filled_in_labels[class_id]
             f.write('\n'.join([
-                'item {',
-                f'  id: {class_id}',
-                f'  name: "{name}"',
-                f'  display_name: "{display_name}"',
-                '}'])
+                "item {",
+                f"  id: {class_id}",
+                f"  name: '{name}'",
+                "}\n"])
             )
             if class_id in classes_actual.keys():
                 logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, classes_actual[class_id]))
