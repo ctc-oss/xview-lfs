@@ -1,15 +1,19 @@
-from PIL import Image
-from tqdm import tqdm
 import logging
-import configargparse as argparse
 import os
 import re
-import xview_lfs as data
-import xview.wv_util as wv
-from . import write_yolo_labels, make_temp_dir
-import lfs
+import sys
 
-if __name__ == "__main__":
+import configargparse as argparse
+import lfs
+import xview.wv_util as wv
+from PIL import Image
+from tqdm import tqdm
+
+import xview_lfs as data
+from . import write_yolo_labels, make_temp_dir
+
+
+def main(*argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("lfs_url", type=str, help="LFS repo URL")
     parser.add_argument("-r", "--ref", type=str, default='master', help="LFS data ref")
@@ -23,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--chip_dir", type=str, default='chipped', help="Chip output dir (relative to workspace)")
     parser.add_argument("--chip_format", type=str, default='jpg', help="Training chip format (jpg, png, ...)")
     parser.add_argument("--yolo_root_dir", default='/opt/darknet', help="Yolo install dir")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.insecure:
         os.environ['GIT_SSL_NO_VERIFY'] = '1'
@@ -197,3 +201,7 @@ if __name__ == "__main__":
 
     logger.info(f'file://{args.workspace}')
     print(args.workspace)
+
+
+if __name__ == "__main__":
+    main(*sys.argv[1:])
