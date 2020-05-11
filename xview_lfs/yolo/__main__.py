@@ -21,6 +21,7 @@ def main(*argv):
     parser.add_argument("-d", "--dictionary", type=str, help="Path to class dictionary; defaults to xview dict")
     parser.add_argument("-c", "--classes", type=str, help="Class ids from labels to include; empty for all")
     parser.add_argument("-k", "--insecure", action='store_true', help="Skip SSL verification; GIT_SSL_NO_VERIFY")
+    parser.add_argument("-m", "--index_mode", type=str, default='tf', help="Index mode (tf, yolo")
     parser.add_argument("-s", "--chip_size", type=int, default=544, help="Training chip size")
     parser.add_argument("-p", "--prune_empty", action='store_true', help='Prune empty chips')
     parser.add_argument("-w", "--workspace", help="Working directory")
@@ -45,8 +46,13 @@ def main(*argv):
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("yolo")
+    logger.info(f'mode: {args.mode}')
 
-    boxes = {}
+    if args.mode == 'yolo':
+        yolo_cfg_src = os.path.join(args.yolo_root_dir, 'cfg', 'yolov3.cfg')
+        if not os.path.exists(yolo_cfg_src):
+            raise SystemError(f'darknet installation not found at, {args.yolo_root_dir}')
+
     skip_chips = 0
     images_list = []
     classes_actual = {}
@@ -126,23 +132,6 @@ def main(*argv):
     logger.info("Chips: %d" % ind_chips)
     logger.info("Skipped Chips: %d" % skip_chips)
 
-    final_classes_map = []
-    logger.info("Generating xview.pbtxt")
-    with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
-        filled_in_labels = data.fill_in_gaps_and_background(labels)
-        for class_id, class_label in sorted(filled_in_labels.items()):
-            name = filled_in_labels[class_id]
-            f.write('\n'.join([
-                "item {",
-                f"  id: {class_id}",
-                f"  name: '{name}'",
-                "}\n"])
-            )
-            if class_id in classes_actual.keys():
-                logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, classes_actual[class_id]))
-                final_classes_map.append(name)
-        logger.debug(f"wrote %s" % f.name)
-
     logger.info("Generating training_list.txt")
     training_list_path = os.path.join(args.workspace, 'training_list.txt')
     with open(training_list_path, 'w') as f:
@@ -150,8 +139,23 @@ def main(*argv):
         f.write('\n')
         logger.debug("wrote %s" % f.name)
 
-    yolo_cfg_src = os.path.join(args.yolo_root_dir, 'cfg', 'yolov3.cfg')
-    if os.path.exists(yolo_cfg_src):
+    if args.mode == 'tf':
+        logger.info("Generating xview.pbtxt")
+        with open(os.path.join(args.workspace, 'xview.pbtxt'), 'w') as f:
+            filled_in_labels = data.fill_in_gaps_and_background(labels)
+            for class_id, class_label in sorted(filled_in_labels.items()):
+                name = filled_in_labels[class_id]
+                f.write('\n'.join([
+                    "item {",
+                    f"  id: {class_id}",
+                    f"  name: '{name}'",
+                    "}\n"])
+                )
+                if class_id in classes_actual.keys():
+                    logger.info(' {:>3} {:25}{:>5}'.format(class_id, name, classes_actual[class_id]))
+            logger.debug(f"wrote %s" % f.name)
+
+    elif args.mode == 'yolo':
         logger.info("Darknet installation found, generating yolo configuration")
 
         # generate the zero indexed labels for darknet
@@ -182,7 +186,7 @@ def main(*argv):
                         f.write(f'{cid} {other}')
 
         logger.info("Generating obj.data")
-        class_count = len(final_classes_map)
+        class_count = len(labels)
         yolo_obj_data_path = os.path.join(args.workspace, 'obj.data')
         with open(yolo_obj_data_path, 'w') as f:
             f.write(f'classes={class_count}\n')
