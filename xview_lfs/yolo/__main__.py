@@ -154,12 +154,32 @@ def main(*argv):
     if os.path.exists(yolo_cfg_src):
         logger.info("Darknet installation found, generating yolo configuration")
 
+        # generate the zero indexed labels for darknet
+        darknet_labels = {}
+        for i, c in enumerate(labels):
+            darknet_labels[c] = i
+
         logger.info("Generating obj.names")
         yolo_names_path = os.path.join(args.workspace, 'obj.names')
         with open(yolo_names_path, 'w') as f:
-            labelstr = "\n".join(final_classes_map)
+            obj_names = []
+            for v, k in darknet_labels.items():
+                obj_names.append(f'{v}:{labels[v]}')
+            labelstr = "\n".join(obj_names)
             f.write(labelstr)
             logger.debug("wrote %s" % f.name)
+
+        with open(training_list_path, 'r') as tl:
+            for tim in tl.readlines():
+                txt = tim.rsplit(".", 1)[0] + ".txt"
+                with open(txt, 'r') as f:
+                    lines = f.readlines()
+                with open(txt, 'w') as f:
+                    for l in lines:
+                        v = l.split(' ')
+                        cid = darknet_labels[int(v[0])]
+                        other = ' '.join(v[1:])
+                        f.write(f'{cid} {other}')
 
         logger.info("Generating obj.data")
         class_count = len(final_classes_map)
